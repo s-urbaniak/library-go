@@ -12,7 +12,7 @@ import (
 )
 
 // NewLDAPClientConfig returns a new LDAP client config
-func NewLDAPClientConfig(URL, bindDN, bindPassword, CA string, insecure bool) (Config, error) {
+func NewLDAPClientConfig(URL, bindDN, bindPassword, CA string, insecure bool) (*ldapClientConfig, error) {
 	url, err := ldaputil.ParseURL(URL)
 	if err != nil {
 		return nil, fmt.Errorf("Error parsing URL: %v", err)
@@ -56,6 +56,10 @@ type ldapClientConfig struct {
 
 // ldapClientConfig is an Config
 var _ Config = &ldapClientConfig{}
+
+func (l *ldapClientConfig) WithTLSConnectionVerification(verifyFn func(tls.ConnectionState) error) {
+	l.tlsConfig.VerifyConnection = verifyFn
+}
 
 // Connect returns an established LDAP connection, or an error if the connection could not
 // be made (or successfully upgraded to TLS). If no error is returned, the caller is responsible for
